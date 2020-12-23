@@ -1,5 +1,5 @@
 // import IO from "socket.io-client";
-const IO = require("./socket.io.js");
+const IO = require("./src/utils/socket.io.js");
 export default {
 
 	install(Vue) {
