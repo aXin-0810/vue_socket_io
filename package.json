@@ -1,6 +1,6 @@
 {
   "name": "@axin_0810/vue-socket-io",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "socket.io的使用封装",
   "main": "index.js",
   "scripts": {
