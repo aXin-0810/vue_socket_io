@@ -4,7 +4,9 @@ export default {
 
 	install(Vue) {
     let socketGather = {};
-    let newsListen = {};
+    let messageListeners = {};
+    let connectListen = {};
+    let disconnectListen = {};
     let codeSerialNumber = 0;
 
     /**
@@ -14,21 +16,36 @@ export default {
      */
     let createSocket = function(connection, opts){
       if(opts.socketKey){
-        socketGather[opts.socketKey] = IO((connection || ""), opts);
+        socketGather[opts.socketKey] = IO((connection || ""), opts, openCallback);
 
         socketGather[opts.socketKey].on("connect",()=>{
           console.log(opts.socketKey+"链接成功");
+          openCallback && openCallback();
+          Object.keys(connectListen).forEach(key=>{
+            Object.keys(connectListen[key]).forEach(fun=>{
+              if(fun==opts.socketKey){
+                connectListen[key][fun](evt);
+              };
+            });
+          });
         });
 
         socketGather[opts.socketKey].on("disconnect",()=>{
           console.log(opts.socketKey+"链接已关闭");
+          Object.keys(disconnectListen).forEach(key=>{
+            Object.keys(disconnectListen[key]).forEach(fun=>{
+              if(fun==opts.socketKey){
+                disconnectListen[key][fun](evt);
+              };
+            });
+          });
         });
 
         socketGather[opts.socketKey].on("message",(evt)=>{
-          Object.keys(newsListen).forEach(key=>{
-            Object.keys(newsListen[key]).forEach(fun=>{
+          Object.keys(messageListeners).forEach(key=>{
+            Object.keys(messageListeners[key]).forEach(fun=>{
               if(fun==opts.socketKey){
-                newsListen[key][fun](evt);
+                messageListeners[key][fun](evt);
               };
             });
           });
@@ -86,14 +103,36 @@ export default {
 					});
         };
         
+        // 注册消息监听事件
         if(conf.messageListeners){
           Object.keys(conf.messageListeners).forEach(key=>{
-            if(!newsListen[this.$options.socket.code]){
-              newsListen[this.$options.socket.code]={};
+            if(!messageListeners[this.$options.socket.code]){
+              messageListeners[this.$options.socket.code]={};
             };
-            newsListen[this.$options.socket.code][key] = conf.messageListeners[key].bind(this);
+            messageListeners[this.$options.socket.code][key] = conf.messageListeners[key].bind(this);
           });
         };
+
+        // 注册链接成功监听事件
+        if(conf.connectListen){
+          Object.keys(conf.connectListen).forEach(key=>{
+            if(!connectListen[this.$options.socket.code]){
+              connectListen[this.$options.socket.code]={};
+            };
+            connectListen[this.$options.socket.code][key] = conf.connectListen[key].bind(this);
+          });
+        };
+
+        // 注册关闭监听事件
+        if(conf.disconnectListen){
+          Object.keys(conf.disconnectListen).forEach(key=>{
+            if(!disconnectListen[this.$options.socket.code]){
+              disconnectListen[this.$options.socket.code]={};
+            };
+            disconnectListen[this.$options.socket.code][key] = conf.disconnectListen[key].bind(this);
+          });
+        };
+
 			}
 		};
 
@@ -116,7 +155,13 @@ export default {
         };
         
         if(conf.messageListeners){
-          delete newsListen[this.$options.socket.code];
+          delete messageListeners[this.$options.socket.code];
+        };
+        if(conf.connectListen){
+          delete connectListen[this.$options.socket.code];
+        };
+        if(conf.disconnectListen){
+          delete disconnectListen[this.$options.socket.code];
         };
 			}
 		};

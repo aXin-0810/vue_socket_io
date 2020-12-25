@@ -34,7 +34,11 @@ test.vue文件
 this.$IO_createSocket("http://...",{
   socketKey:"testSocket",
   // ......
+},function(){
+  console.log("testSocket链接成功");
 });
+// 附属：如果多页面或者多组件需要监听链接成功事件时
+// 注意：需要在页面或者组件都加载完成后链接成功事件才能接收。
 
 //获取socket实例【得到实例后可做更多的操作，更多操作可以查看socket官网】
 this.$IO_getSocket("testSocket");
@@ -82,6 +86,26 @@ export default {
         console.log(msg);
       },
       // 多socket通道可以追加标记方法接收......
+    },
+    //可以在任何页面或组件监听通道链接成功
+    connectListen:{
+      testSocket(){
+        console.log("testSocket链接成功");
+      },
+      testSocket2(){
+        console.log("testSocket2链接成功");
+      },
+      // ......
+    },
+    //可以在任何页面或组件监听通道关闭
+    disconnectListen:{
+      testSocket(){
+        console.log("testSocket链接关闭");
+      },
+      testSocket2(){
+        console.log("testSocket2链接关闭");
+      },
+      // ......
     }
 
   },
