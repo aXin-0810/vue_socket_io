@@ -14,7 +14,7 @@ export default {
      * @param {*} connection 链接地址
      * @param {*} opts 链接属性参数 socketKey为socket标记必传
      */
-    let createSocket = function(connection, opts){
+    let createSocket = function(connection, opts, openCallback){
       if(opts.socketKey){
         socketGather[opts.socketKey] = IO((connection || ""), opts, openCallback);
 
@@ -24,7 +24,7 @@ export default {
           Object.keys(connectListen).forEach(key=>{
             Object.keys(connectListen[key]).forEach(fun=>{
               if(fun==opts.socketKey){
-                connectListen[key][fun](evt);
+                connectListen[key][fun]();
               };
             });
           });
@@ -35,7 +35,7 @@ export default {
           Object.keys(disconnectListen).forEach(key=>{
             Object.keys(disconnectListen[key]).forEach(fun=>{
               if(fun==opts.socketKey){
-                disconnectListen[key][fun](evt);
+                disconnectListen[key][fun]();
               };
             });
           });
